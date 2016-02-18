@@ -1,0 +1,41 @@
+# build own image
+# ~~~~~~~~~~~~~~~
+#
+# $ TAG_VERSION=0.1
+#
+# $ docker build -t adan/nominatim_test:${TAG_VERSION} \
+#   -f ./system/deploy/Dockerfile.nominatim.test .
+#
+# push to dockerhub (https://hub.docker.com/r/adan/nominatim_test/tags/)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $ docker push adan/nominatim_test:${TAG_VERSION}
+#
+# run own image
+# ~~~~~~~~~~~~~
+#
+# $ docker run \
+#   --name nominatim_test \
+#   -t -i adan/nominatim_test:${TAG_VERSION} /bin/bash
+#
+# $ docker start nominatim_test
+# $ docker stop nominatim_test
+
+FROM ubuntu:14.04
+
+RUN apt-get update
+
+RUN apt-get install \
+    -y \
+    --force-yes \
+    --no-install-recommends \
+    --no-install-suggests \
+    python-dev python-pip python-Levenshtein tidy \
+    libpq-dev libgeos-dev gcc
+
+RUN pip install lettuce nose pytidylib haversine psycopg2 shapely
+
+RUN pip install --upgrade six
+
+RUN mkdir -p /_opt/Nominatim
+ADD . /_opt/Nominatim/
